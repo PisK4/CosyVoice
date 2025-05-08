@@ -1,0 +1,66 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# 部署指南
+
+CosyVoice2-Ex 支持多种部署方式，包括本地部署、容器化部署等。
+
+## 系统要求
+
+- Python 3.10+
+- 建议 CUDA 支持 (GPU加速，非必须)
+- 至少 15GB 磁盘空间 (包括模型文件)
+- 至少 8GB RAM
+
+## 本地部署
+
+### Windows
+
+- 下载一键包，解压后运行 `运行-CosyVoice2-Ex.bat`
+- 一键包在 [build_portable.ps1](mdc:build_portable.ps1) 中定义构建过程
+
+### Linux & macOS
+
+```bash
+# 创建并激活 conda 环境
+conda create -n cosyvoice -y python=3.10
+conda activate cosyvoice
+
+# 安装依赖
+conda install -y -c conda-forge pynini==2.1.5
+pip install -r requirements.txt
+
+# 运行 WebUI
+python webui.py --port 8080 --open
+```
+
+## Docker 部署
+
+Docker 部署配置在 [docker](mdc:docker) 目录中定义。
+
+## 多环境配置
+
+- 主要依赖项在 [requirements.txt](mdc:requirements.txt) 中定义
+- 环境变量设置在 [webui.py](mdc:webui.py) 和 [api.py](mdc:api.py) 的顶部
+
+## 性能优化
+
+CosyVoice2 支持多种性能优化方法：
+
+1. **JIT 编译**:
+   - 通过 `load_jit=True` 参数启用
+   - 提升模型推理速度
+
+2. **TensorRT 加速**:
+   - 通过 `load_trt=True` 参数启用
+   - 仅支持 NVIDIA GPU
+
+3. **FP16 半精度**:
+   - 通过 `fp16=True` 参数启用
+   - 降低内存占用并提高速度
+
+4. **流式处理**:
+   - 通过 `stream=True` 参数启用
+   - 增强实时生成体验

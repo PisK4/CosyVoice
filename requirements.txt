@@ -22,7 +22,7 @@ onnxruntime-gpu==1.18.0; sys_platform == 'linux'
 onnxruntime==1.18.0; sys_platform == 'darwin' or sys_platform == 'win32'
 openai-whisper==20231117
 protobuf==4.25
-pyarrow==18.1.0
+pyarrow==19.0.0
 onnxconverter_common==1.14.0
 pydantic==2.7.0
 pyworld==0.3.4
@@ -39,7 +39,6 @@ uvicorn==0.30.0
 WeTextProcessing==1.0.3
 wget==3.2
 # pynini==2.1.5 # 用conda安装 conda install -y -c conda-forge pynini==2.1.5
-pyarrow==19.0.0
 flask
 flask_cors
 ffmpeg

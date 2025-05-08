@@ -1,0 +1,45 @@
+---
+description: 模型架构 architecture
+globs: 
+alwaysApply: false
+---
+# CosyVoice2 模型架构
+
+CosyVoice2 是一个由多个组件组成的 TTS（文本转语音）系统，实现了高质量、可控的语音合成。
+
+## 核心组件
+
+1. **前端处理** (CosyVoiceFrontEnd):
+   - 文本正则化和分段
+   - 特征提取
+   - 说话人嵌入
+   - 定义在 [cosyvoice/cli/frontend.py](mdc:cosyvoice/cli/frontend.py)
+
+2. **模型架构**:
+   - LLM 模块：负责理解文本内容和控制指令
+   - Flow 模块：声学特征生成
+   - HiFiGAN 模块：生成最终语音波形
+   - 定义在 [cosyvoice/cli/model.py](mdc:cosyvoice/cli/model.py)
+
+3. **主要类**:
+   - `CosyVoice`: 原始 CosyVoice 实现
+   - `CosyVoice2`: 增强版实现，支持更多功能如自然语言控制
+   - 定义在 [cosyvoice/cli/cosyvoice.py](mdc:cosyvoice/cli/cosyvoice.py)
+
+## 主要推理模式
+
+1. **预训练音色** (inference_sft):
+   - 使用预定义的音色模型
+   - 无需参考音频
+
+2. **极速复刻** (inference_zero_shot):
+   - 使用参考音频和文本
+   - 3秒内即可复刻
+
+3. **跨语种复刻** (inference_cross_lingual):
+   - 支持跨语言合成
+   - 保持参考音频的音色特性
+
+4. **自然语言控制** (inference_instruct2):
+   - 通过自然语言指令控制语音特性
+   - 例如情感、语速、语调等

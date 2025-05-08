@@ -1,0 +1,50 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# WebUI 使用指南
+
+WebUI 是 CosyVoice2-Ex 的主要用户界面，基于 Gradio 实现。
+
+## 主要功能
+
+- 选择不同推理模式（预训练音色、3秒极速复刻、自然语言控制、跨语种复刻）
+- 音频上传和录制
+- 文本输入和控制
+- 音色保存
+- 音频播放和下载
+
+## 关键组件
+
+1. **WebUI初始化和启动**:
+   - 解析命令行参数
+   - 加载模型
+   - 创建 Gradio 界面组件
+   - 定义在 [webui.py](mdc:webui.py) 的 `main()` 函数中
+
+2. **音频生成**:
+   - `generate_audio()` 函数处理不同模式的音频生成
+   - 验证输入参数
+   - 处理流式或非流式输出
+   - 文件在 [webui.py](mdc:webui.py)
+
+3. **音色管理**:
+   - 音色选择 (`refresh_sft_spk()`)
+   - 音色保存 (`save_voice_model()`)
+   - 文件在 [webui.py](mdc:webui.py)
+
+4. **音频处理**:
+   - 音频裁剪
+   - 音量归一化
+   - 流式输出处理
+   - 定义在 [webui.py](mdc:webui.py) 的 `postprocess()` 和 `process_audio()` 函数中
+
+## 使用流程
+
+1. 启动 WebUI (`python webui.py`)
+2. 选择合成模式
+3. 根据模式输入所需参数（文本、音色、参考音频等）
+4. 点击生成按钮
+5. 播放或下载生成的音频
+6. 可选：保存音色模型

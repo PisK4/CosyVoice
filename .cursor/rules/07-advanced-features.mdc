@@ -1,0 +1,63 @@
+---
+description: TTS 微调参数
+globs: 
+alwaysApply: false
+---
+# CosyVoice2-Ex 高级功能
+
+CosyVoice2-Ex 提供多种高级功能，实现更精细的语音生成控制。
+
+## 自然语言控制
+
+通过自然语言指令控制语音特性:
+- 情绪控制 (开心、悲伤、愤怒等)
+- 语速控制 (快、慢、正常)
+- 语调控制 (高音、低音)
+- 口音控制 (方言、外语口音)
+- 风格控制 (播音腔、耳语、唱歌等)
+
+实现于 [cosyvoice/cli/cosyvoice.py](mdc:cosyvoice/cli/cosyvoice.py) 中的 `inference_instruct2()` 方法
+
+## 标记控制
+
+使用特殊标记实现更精确的控制:
+- `[breath]`: 呼吸声
+- `[laugh]`: 笑声
+- `<strong>文本</strong>`: 强调
+- `[pause]`: 停顿
+
+## 语速控制
+
+可通过 `speed` 参数控制语速:
+- 值范围通常为 0.5-2.0
+- 1.0 为正常语速
+- 小于 1.0 为慢速
+- 大于 1.0 为快速
+
+相关实现在各推理函数中的 `speed` 参数
+
+## 音频后处理
+
+提供多种后处理功能，优化音频输出质量:
+- 音量归一化
+- 静音裁剪
+- 语音增强
+
+实现于 [webui.py](mdc:webui.py) 中的 `postprocess()` 函数
+
+## 语音识别功能
+
+支持自动识别上传音频中的文本:
+- 多语言支持
+- 自动语言识别
+
+实现于 [webui.py](mdc:webui.py) 中的 `prompt_wav_recognition()` 函数
+
+## 流式生成
+
+支持流式生成音频:
+- 边生成边输出
+- 减少首包延迟
+- 适合长文本生成
+
+在各推理函数中通过 `stream=True` 参数启用

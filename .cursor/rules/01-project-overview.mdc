@@ -1,0 +1,30 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# CosyVoice2-Ex 项目概述
+
+CosyVoice2-Ex 是 CosyVoice2 的功能扩展版本，提供多种 TTS（文本转语音）功能，包括：
+- 预训练音色支持
+- 3秒极速复刻
+- 自然语言控制
+- 跨语种复刻
+- 音色保存
+- API服务接口
+
+## 核心文件
+
+- [webui.py](mdc:webui.py): Web 用户界面的主入口点，提供 Gradio 基础的 UI
+- [api.py](mdc:api.py): 提供 REST API 接口，允许通过 HTTP 请求调用 TTS 服务
+- [cosyvoice_manager.py](mdc:cosyvoice_manager.py): CosyVoice2 的高级管理类，提供多种 TTS 生成功能
+- [cosyvoice/cli/cosyvoice.py](mdc:cosyvoice/cli/cosyvoice.py): 核心的 CosyVoice 和 CosyVoice2 实现类
+
+## 目录结构
+
+- `cosyvoice/`: 核心模型和功能模块
+- `voices/`: 保存自定义音色数据
+- `audios/`: 存储上传的音频文件
+- `pretrained_models/`: 预训练模型存储位置（自动下载）
+- `tools/`: 工具脚本
+- `third_party/`: 第三方依赖库

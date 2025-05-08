@@ -37,9 +37,17 @@ from cosyvoice.utils.file_utils import load_wav, logging
 from cosyvoice.utils.common import set_all_random_seed
 
 from modelscope import snapshot_download
-snapshot_download('iic/CosyVoice2-0.5B', local_dir='pretrained_models/CosyVoice2-0.5B')
+
+model_dir = 'pretrained_models/CosyVoice2-0.5B'
+if not os.path.exists(model_dir) or not os.path.exists(os.path.join(model_dir, 'cosyvoice2.yaml')):
+    logging.info(f"模型文件不存在，开始下载到: {model_dir}")
+    snapshot_download('iic/CosyVoice2-0.5B', local_dir=model_dir)
+else:
+    logging.info(f"模型文件已存在，跳过下载: {model_dir}")
+
 try:
-    shutil.copy2('spk2info.pt', 'pretrained_models/CosyVoice2-0.5B/spk2info.pt')
+    if not os.path.exists(os.path.join(model_dir, 'spk2info.pt')):
+        shutil.copy2('spk2info.pt', os.path.join(model_dir, 'spk2info.pt'))
 except Exception as e:
     logging.warning(f'复制文件失败: {e}')
 
@@ -488,14 +496,37 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     logging.getLogger().setLevel(getattr(logging, args.log_level))
+    
+    # 确保模型路径存在
+    if not os.path.exists(args.model_dir):
+        logging.error(f"模型目录不存在: {args.model_dir}")
+        sys.exit(1)
+    
+    # 检查必要的文件
+    required_files = ['cosyvoice2.yaml', 'llm.pt', 'flow.pt', 'hift.pt', 'campplus.onnx', 'speech_tokenizer_v2.onnx']
+    missing_files = [f for f in required_files if not os.path.exists(os.path.join(args.model_dir, f))]
+    if missing_files:
+        logging.error(f"模型目录中缺少以下文件: {missing_files}")
+        sys.exit(1)
+        
+    # 复制或创建spk2info.pt文件（如果不存在）
+    if not os.path.exists(os.path.join(args.model_dir, 'spk2info.pt')):
+        if os.path.exists('spk2info.pt'):
+            shutil.copy2('spk2info.pt', os.path.join(args.model_dir, 'spk2info.pt'))
+            logging.info(f"已复制spk2info.pt到模型目录")
+        else:
+            logging.warning(f"缺少spk2info.pt文件，一些功能可能无法正常工作")
 
     try:
-        cosyvoice = CosyVoice(args.model_dir)
-    except Exception:
         try:
+            logging.info("尝试初始化CosyVoice2...")
             cosyvoice = CosyVoice2(args.model_dir)
-        except Exception:
-            raise TypeError('no valid model_type!')
+        except Exception as e:
+            logging.warning(f"CosyVoice2初始化失败，尝试CosyVoice: {e}")
+            cosyvoice = CosyVoice(args.model_dir)
+    except Exception as e:
+        logging.error(f"模型初始化失败: {str(e)}")
+        sys.exit(1)
 
     sft_spk = refresh_sft_spk()['choices']
     reference_wavs = refresh_prompt_wav()['choices']

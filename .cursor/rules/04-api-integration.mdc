@@ -1,0 +1,68 @@
+---
+description: REST API
+globs: 
+alwaysApply: false
+---
+# API 集成指南
+
+CosyVoice2-Ex 提供 REST API，便于集成到其他应用程序和服务中。
+
+## API 端点
+
+1. **文本转语音 (`/tts`)**:
+   - 支持 GET 和 POST 请求
+   - 参数：text(文本)、speaker(音色)、instruct(指令，可选)、streaming(流式输出，可选)、speed(语速，可选)
+   - 返回：音频文件 (WAV 或 OGG 格式)
+
+2. **获取可用音色 (`/speakers`)**:
+   - 返回：JSON 格式的音色列表
+   - 包括预训练音色和自定义音色
+
+## 使用示例
+
+```
+http://localhost:9880/?text=春日清晨，老街深处飘来阵阵豆香。&speaker=舌尖上的中国
+http://localhost:9880/?text=hello%20hello~&speaker=嘉然&instruct=慢速，用可爱的语气说
+```
+
+## 核心组件
+
+- API 初始化和启动：[api.py](mdc:api.py) 中的 `__main__` 部分
+- TTS 处理函数：[api.py](mdc:api.py) 中的 `tts()` 函数
+- 音色列表获取：[api.py](mdc:api.py) 中的 `speakers()` 函数
+
+## 集成方式
+
+### HTTP 请求
+
+```python
+import requests
+
+# 简单文本转语音
+response = requests.get(
+    "http://localhost:9880/",
+    params={"text": "你好世界", "speaker": "默认音色"}
+)
+
+# 保存音频文件
+with open("output.wav", "wb") as f:
+    f.write(response.content)
+```
+
+### 流式处理
+
+```python
+import requests
+
+# 流式文本转语音
+response = requests.get(
+    "http://localhost:9880/",
+    params={"text": "长文本...", "speaker": "默认音色", "streaming": 1},
+    stream=True
+)
+
+# 处理流式响应
+for chunk in response.iter_content(chunk_size=1024):
+    # 处理音频块
+    pass
+```

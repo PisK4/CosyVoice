@@ -1,0 +1,56 @@
+---
+description: 自定义音色
+globs: 
+alwaysApply: false
+---
+# 自定义音色指南
+
+CosyVoice2-Ex 提供强大的音色自定义功能，允许用户创建和使用自己的语音风格。
+
+## 音色管理
+
+1. **音色保存**:
+   - 在 WebUI 的音色复刻模式中创建
+   - 通过 `save_voice_model()` 函数保存
+   - 文件保存在 `voices/` 目录
+   - 保存格式为 PyTorch 模型 (.pt)
+
+2. **音色加载**:
+   - 在 WebUI 中通过下拉菜单加载
+   - 通过 API 使用 `speaker` 参数指定
+   - 通过 `load_voice_data()` 函数加载
+
+## 音色创建流程
+
+1. **极速复刻**:
+   - 上传参考音频（3秒以上）
+   - 输入参考文本
+   - 生成音频
+   - 保存音色模型
+
+2. **跨语种复刻**:
+   - 上传参考音频
+   - 生成跨语种音频
+   - 保存音色模型
+
+## 自定义音色数据结构
+
+音色文件 (.pt) 包含以下关键数据:
+
+- `audio_ref`: 参考音频数据
+- `prompt_text`: 参考文本 (可选)
+- 特征嵌入:
+  - `flow_embedding`
+  - `llm_embedding`
+- 分词数据:
+  - `llm_prompt_speech_token`
+  - `flow_prompt_speech_token`
+- 特征数据:
+  - `prompt_speech_feat`
+
+## 重要函数
+
+- [webui.py](mdc:webui.py) 中的 `save_voice_model()`
+- [webui.py](mdc:webui.py) 中的 `refresh_sft_spk()`
+- [api.py](mdc:api.py) 中的 `load_voice_data()`
+- [cosyvoice/cli/cosyvoice.py](mdc:cosyvoice/cli/cosyvoice.py) 中的 `_save_voice_model()`

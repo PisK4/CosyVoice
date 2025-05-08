@@ -39,32 +39,54 @@ class CosyVoice:
         self.fp16 = fp16
         if not os.path.exists(model_dir):
             model_dir = snapshot_download(model_dir)
-        with open('{}/cosyvoice.yaml'.format(model_dir), 'r') as f:
-            configs = load_hyperpyyaml(f)
-        assert get_model_type(configs) != CosyVoice2Model, 'do not use {} for CosyVoice initialization!'.format(model_dir)
-        self.frontend = CosyVoiceFrontEnd(configs['get_tokenizer'],
-                                          configs['feat_extractor'],
-                                          '{}/campplus.onnx'.format(model_dir),
-                                          '{}/speech_tokenizer_v1.onnx'.format(model_dir),
-                                          '{}/spk2info.pt'.format(model_dir),
-                                          configs['allowed_special'])
-        self.sample_rate = configs['sample_rate']
-        if torch.cuda.is_available() is False and (load_jit is True or load_trt is True or fp16 is True):
-            load_jit, load_trt, fp16 = False, False, False
-            logging.warning('no cuda device, set load_jit/load_trt/fp16 to False')
-        self.model = CosyVoiceModel(configs['llm'], configs['flow'], configs['hift'], fp16)
-        self.model.load('{}/llm.pt'.format(model_dir),
-                        '{}/flow.pt'.format(model_dir),
-                        '{}/hift.pt'.format(model_dir))
-        if load_jit:
-            self.model.load_jit('{}/llm.text_encoder.{}.zip'.format(model_dir, 'fp16' if self.fp16 is True else 'fp32'),
-                                '{}/llm.llm.{}.zip'.format(model_dir, 'fp16' if self.fp16 is True else 'fp32'),
-                                '{}/flow.encoder.{}.zip'.format(model_dir, 'fp16' if self.fp16 is True else 'fp32'))
-        if load_trt:
-            self.model.load_trt('{}/flow.decoder.estimator.{}.mygpu.plan'.format(model_dir, 'fp16' if self.fp16 is True else 'fp32'),
-                                '{}/flow.decoder.estimator.fp32.onnx'.format(model_dir),
-                                self.fp16)
-        del configs
+            
+        # check yaml file, prefer cosyvoice.yaml, then try cosyvoice2.yaml
+        yaml_file = os.path.join(model_dir, 'cosyvoice.yaml')
+        if not os.path.exists(yaml_file):
+            yaml_file = os.path.join(model_dir, 'cosyvoice2.yaml')
+            
+        try:
+            with open(yaml_file, 'r') as f:
+                # ensure set qwen_pretrain_path
+                overrides = {}
+                if os.path.exists(os.path.join(model_dir, 'CosyVoice-BlankEN')):
+                    overrides['qwen_pretrain_path'] = os.path.join(model_dir, 'CosyVoice-BlankEN')
+                
+                configs = load_hyperpyyaml(f, overrides=overrides)
+                
+            assert get_model_type(configs) != CosyVoice2Model, 'do not use {} for CosyVoice initialization!'.format(model_dir)
+            
+            # check and fix tokenizer path
+            tokenizer_path = '{}/speech_tokenizer_v1.onnx'.format(model_dir)
+            if not os.path.exists(tokenizer_path) and os.path.exists('{}/speech_tokenizer_v2.onnx'.format(model_dir)):
+                tokenizer_path = '{}/speech_tokenizer_v2.onnx'.format(model_dir)
+            
+            self.frontend = CosyVoiceFrontEnd(configs['get_tokenizer'],
+                                            configs['feat_extractor'],
+                                            '{}/campplus.onnx'.format(model_dir),
+                                            tokenizer_path,
+                                            '{}/spk2info.pt'.format(model_dir),
+                                            configs['allowed_special'])
+            self.sample_rate = configs['sample_rate']
+            if torch.cuda.is_available() is False and (load_jit is True or load_trt is True or fp16 is True):
+                load_jit, load_trt, fp16 = False, False, False
+                logging.warning('no cuda device, set load_jit/load_trt/fp16 to False')
+            self.model = CosyVoiceModel(configs['llm'], configs['flow'], configs['hift'], fp16)
+            self.model.load('{}/llm.pt'.format(model_dir),
+                            '{}/flow.pt'.format(model_dir),
+                            '{}/hift.pt'.format(model_dir))
+            if load_jit:
+                self.model.load_jit('{}/llm.text_encoder.{}.zip'.format(model_dir, 'fp16' if self.fp16 is True else 'fp32'),
+                                    '{}/llm.llm.{}.zip'.format(model_dir, 'fp16' if self.fp16 is True else 'fp32'),
+                                    '{}/flow.encoder.{}.zip'.format(model_dir, 'fp16' if self.fp16 is True else 'fp32'))
+            if load_trt:
+                self.model.load_trt('{}/flow.decoder.estimator.{}.mygpu.plan'.format(model_dir, 'fp16' if self.fp16 is True else 'fp32'),
+                                    '{}/flow.decoder.estimator.fp32.onnx'.format(model_dir),
+                                    self.fp16)
+            del configs
+        except Exception as e:
+            logging.error(f"CosyVoice初始化失败: {e}")
+            raise e
 
     def list_available_spks(self):
         spks = list(self.frontend.spk2info.keys())
@@ -216,30 +238,62 @@ class CosyVoice2(CosyVoice):
         self.fp16 = fp16
         if not os.path.exists(model_dir):
             model_dir = snapshot_download(model_dir)
-        with open('{}/cosyvoice.yaml'.format(model_dir), 'r') as f:
-            configs = load_hyperpyyaml(f, overrides={'qwen_pretrain_path': os.path.join(model_dir, 'CosyVoice-BlankEN')})
-        assert get_model_type(configs) == CosyVoice2Model, 'do not use {} for CosyVoice2 initialization!'.format(model_dir)
-        self.frontend = CosyVoiceFrontEnd(configs['get_tokenizer'],
-                                          configs['feat_extractor'],
-                                          '{}/campplus.onnx'.format(model_dir),
-                                          '{}/speech_tokenizer_v2.onnx'.format(model_dir),
-                                          '{}/spk2info.pt'.format(model_dir),
-                                          configs['allowed_special'])
-        self.sample_rate = configs['sample_rate']
-        if torch.cuda.is_available() is False and (load_jit is True or load_trt is True or fp16 is True):
-            load_jit, load_trt, fp16 = False, False, False
-            logging.warning('no cuda device, set load_jit/load_trt/fp16 to False')
-        self.model = CosyVoice2Model(configs['llm'], configs['flow'], configs['hift'], fp16)
-        self.model.load('{}/llm.pt'.format(model_dir),
-                        '{}/flow.pt'.format(model_dir),
-                        '{}/hift.pt'.format(model_dir))
-        if load_jit:
-            self.model.load_jit('{}/flow.encoder.{}.zip'.format(model_dir, 'fp16' if self.fp16 is True else 'fp32'))
-        if load_trt:
-            self.model.load_trt('{}/flow.decoder.estimator.{}.mygpu.plan'.format(model_dir, 'fp16' if self.fp16 is True else 'fp32'),
-                                '{}/flow.decoder.estimator.fp32.onnx'.format(model_dir),
-                                self.fp16)
-        del configs
+            
+        # check yaml file, prefer cosyvoice2.yaml
+        yaml_file = os.path.join(model_dir, 'cosyvoice2.yaml')
+        if not os.path.exists(yaml_file):
+            yaml_file = os.path.join(model_dir, 'cosyvoice.yaml')
+            
+        try:
+            # check and set CosyVoice-BlankEN path
+            blankEN_path = os.path.join(model_dir, 'CosyVoice-BlankEN')
+            if not os.path.exists(blankEN_path):
+                logging.warning(f"CosyVoice-BlankEN directory does not exist: {blankEN_path}")
+                if os.path.exists(os.path.join(model_dir, 'config.json')):
+                    blankEN_path = model_dir
+                    logging.info(f"使用模型根目录作为BlankEN路径: {blankEN_path}")
+                
+            with open(yaml_file, 'r') as f:
+                configs = load_hyperpyyaml(f, overrides={'qwen_pretrain_path': blankEN_path})
+                
+            assert get_model_type(configs) == CosyVoice2Model, 'do not use {} for CosyVoice2 initialization!'.format(model_dir)
+            
+            # check tokenizer path
+            tokenizer_path = '{}/speech_tokenizer_v2.onnx'.format(model_dir)
+            if not os.path.exists(tokenizer_path):
+                fallback_path = '{}/speech_tokenizer_v1.onnx'.format(model_dir)
+                if os.path.exists(fallback_path):
+                    tokenizer_path = fallback_path
+                    logging.warning(f"找不到speech_tokenizer_v2.onnx，使用替代tokenizer: {tokenizer_path}")
+                else:
+                    logging.error(f"找不到有效的tokenizer文件")
+                    
+            self.frontend = CosyVoiceFrontEnd(configs['get_tokenizer'],
+                                            configs['feat_extractor'],
+                                            '{}/campplus.onnx'.format(model_dir),
+                                            tokenizer_path,
+                                            '{}/spk2info.pt'.format(model_dir),
+                                            configs['allowed_special'])
+            self.sample_rate = configs['sample_rate']
+            if torch.cuda.is_available() is False and (load_jit is True or load_trt is True or fp16 is True):
+                load_jit, load_trt, fp16 = False, False, False
+                logging.warning('no cuda device, set load_jit/load_trt/fp16 to False')
+            self.model = CosyVoice2Model(configs['llm'], configs['flow'], configs['hift'], fp16)
+            self.model.load('{}/llm.pt'.format(model_dir),
+                            '{}/flow.pt'.format(model_dir),
+                            '{}/hift.pt'.format(model_dir))
+            if load_jit:
+                self.model.load_jit('{}/flow.encoder.{}.zip'.format(model_dir, 'fp16' if self.fp16 is True else 'fp32'),
+                                    '{}/flow.decoder.estimator.fp32.onnx'.format(model_dir),
+                                    None)
+            if load_trt:
+                self.model.load_trt('{}/flow.decoder.estimator.{}.mygpu.plan'.format(model_dir, 'fp16' if self.fp16 is True else 'fp32'),
+                                    '{}/flow.decoder.estimator.fp32.onnx'.format(model_dir),
+                                    self.fp16)
+            del configs
+        except Exception as e:
+            logging.error(f"CosyVoice2初始化失败: {e}")
+            raise e
 
     def inference_instruct(self, *args, **kwargs):
         raise NotImplementedError('inference_instruct is not implemented for CosyVoice2!')
