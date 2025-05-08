@@ -9,22 +9,58 @@
   </a>
 </p>
 
+# CosyVoice2-Ex
+CosyVoice2 功能扩充（预训练音色/3s极速复刻/自然语言控制/自动识别/音色保存/API），支持 Windows / Linux / MacOS
+
+Demo: [Modelscope](https://www.modelscope.cn/studios/journey0ad/CosyVoice2-Ex)
+
 ## 启动
 
-[Modelscope](https://www.modelscope.cn/studios/journey0ad/CosyVoice2-Ex)
-```bash
+> [!NOTE]
+> 首次运行会自动下载约 10G 左右的模型文件，也可以[自行下载模型文件](https://www.modelscope.cn/models/iic/CosyVoice2-0.5B)，放置于 `pretrained_models` 目录下
+
+### Windows
+
+提供有 Windows 可用的一键包，解压后双击打开 `运行-CosyVoice2-Ex.bat` 即可运行
+
+[>>> 点击下载 <<<](https://github.com/journey-ad/CosyVoice2-Ex/releases/latest)
+
+<p>
+  <img src="./asset/batch_script_windows.jpg" width="800">
+</p>
+
+### Linux & macOS
+
+在 MacBook Pro(M4 Pro) 和 WSL2 Ubuntu 22.04 部署运行测试通过
+
+须通过 conda 环境运行，参考 https://docs.conda.io/en/latest/miniconda.html
+
+```sh
 conda create -n cosyvoice -y python=3.10
 conda activate cosyvoice
 conda install -y -c conda-forge pynini==2.1.5
 pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host=mirrors.aliyun.com
 
-python webui.py
+python webui.py --port 8080 --open
+```
+
+Linux 可安装 `ttsfrd` 提升文本归一化性能（可选）
+
+```sh
+sudo apt-get install -y git build-essential curl wget ffmpeg unzip git git-lfs sox libsox-dev nvidia-cuda-toolkit
+
+git lfs install
+git clone https://www.modelscope.cn/iic/CosyVoice-ttsfrd.git pretrained_models/CosyVoice-ttsfrd
+
+cd pretrained_models/CosyVoice-ttsfrd/
+unzip resource.zip -d .
+pip install ttsfrd-0.3.6-cp38-cp38-linux_x86_64.whl
 ```
 
 ## 接口地址
 
 [示例指令](./示例指令.html)
-```bash
+```sh
 python api.py
 
 http://localhost:9880/?text=春日清晨，老街深处飘来阵阵豆香。三代传承的手艺，将金黄的豆浆熬制成最纯粹的味道。一碗温热的豆腐脑，不仅是早餐，更是儿时难忘的记忆，是岁月沉淀的生活智慧。&speaker=舌尖上的中国
@@ -32,269 +68,40 @@ http://localhost:9880/?text=春日清晨，老街深处飘来阵阵豆香。三�
 http://localhost:9880/?text=hello%20hello~%20[breath]%20听得到吗？%20きこえていますか？%20初次见面，请多关照呀！%20这里是嘉然Diana，大家也可以叫我<strong>蒂娜</strong>%20是你们最甜甜甜的小草莓&speaker=嘉然&instruct=慢速，用可爱的语气说
 ```
 
-## 👉🏻 CosyVoice 👈🏻
-**CosyVoice 2.0**: [Demos](https://funaudiollm.github.io/cosyvoice2/); [Paper](https://arxiv.org/abs/2412.10117); [Modelscope](https://www.modelscope.cn/studios/iic/CosyVoice2-0.5B); [HuggingFace](https://huggingface.co/spaces/FunAudioLLM/CosyVoice2-0.5B)
+## Credits
 
-**CosyVoice 1.0**: [Demos](https://fun-audio-llm.github.io); [Paper](https://funaudiollm.github.io/pdf/CosyVoice_v1.pdf); [Modelscope](https://www.modelscope.cn/studios/iic/CosyVoice-300M)
+- [CosyVoice](https://github.com/FunAudioLLM/CosyVoice)
+- [CosyVoice_For_Windows](https://github.com/v3ucn/CosyVoice_For_Windows)
+- [Fish Audio](https://fish.audio)
 
-## Highlight🔥
+## 免责声明
 
-**CosyVoice 2.0** has been released! Compared to version 1.0, the new version offers more accurate, more stable, faster, and better speech generation capabilities.
-### Multilingual
-- **Supported Language**: Chinese, English, Japanese, Korean, Chinese dialects (Cantonese, Sichuanese, Shanghainese, Tianjinese, Wuhanese, etc.)
-- **Crosslingual & Mixlingual**：Support zero-shot voice cloning for cross-lingual and code-switching scenarios.
-### Ultra-Low Latency
-- **Bidirectional Streaming Support**: CosyVoice 2.0 integrates offline and streaming modeling technologies.
-- **Rapid First Packet Synthesis**: Achieves latency as low as 150ms while maintaining high-quality audio output.
-### High Accuracy
-- **Improved Pronunciation**: Reduces pronunciation errors by 30% to 50% compared to CosyVoice 1.0.
-- **Benchmark Achievements**: Attains the lowest character error rate on the hard test set of the Seed-TTS evaluation set.
-### Strong Stability
-- **Consistency in Timbre**: Ensures reliable voice consistency for zero-shot and cross-language speech synthesis.
-- **Cross-language Synthesis**: Marked improvements compared to version 1.0.
-### Natural Experience
-- **Enhanced Prosody and Sound Quality**: Improved alignment of synthesized audio, raising MOS evaluation scores from 5.4 to 5.53.
-- **Emotional and Dialectal Flexibility**: Now supports more granular emotional controls and accent adjustments.
+1. 本项目仅用于学习、研究和技术交流目的。使用者必须遵守中华人民共和国相关法律法规，尊重他人知识产权和合法权益。
 
-## Roadmap
+2. 本项目基于 [Apache 2.0](./LICENSE) 协议开源
 
-- [x] 2024/12
+3. 关于项目中的音频素材：
+   - 项目中包含的示例音频仅用于技术测试和演示目的
+   - 音频素材的版权归原作者所有，不适用于本项目遵循的 Apache 2.0 协议
+   - 如果您是音频素材的版权所有者且不希望被使用，请联系我们删除
 
-    - [x] 25hz cosyvoice 2.0 released
+4. 关于 AI 生成语音：
+   - 模型生成的语音内容可能存在版权风险
+   - 生成的语音可能被用于制作误导性内容
+   - 请谨慎使用和传播 AI 生成的语音内容
+   - 建议在使用生成的语音内容时注明其 AI 生成的属性
 
-- [x] 2024/09
+5. 严禁将本项目用于以下用途：
+   - 任何违法违规行为
+   - 侵犯他人知识产权或其他合法权益
+   - 传播不良或有害信息
 
-    - [x] 25hz cosyvoice base model
-    - [x] 25hz cosyvoice voice conversion model
+6. 使用限制：
+   - 请勿用于制作违法违规内容
+   - 请勿用于制作虚假信息或误导性内容
 
-- [x] 2024/08
+7. 使用本项目所产生的一切后果由使用者自行承担，项目开发者不承担任何法律责任
 
-    - [x] Repetition Aware Sampling(RAS) inference for llm stability
-    - [x] Streaming inference mode support, including kv cache and sdpa for rtf optimization
+8. 如果本项目有任何侵犯您权益的地方，请及时联系我们，我们将立即处理
 
-- [x] 2024/07
-
-    - [x] Flow matching training support
-    - [x] WeTextProcessing support when ttsfrd is not available
-    - [x] Fastapi server and client
-
-
-## Install
-
-**Clone and install**
-
-- Clone the repo
-``` sh
-git clone --recursive https://github.com/FunAudioLLM/CosyVoice.git
-# If you failed to clone submodule due to network failures, please run following command until success
-cd CosyVoice
-git submodule update --init --recursive
-```
-
-- Install Conda: please see https://docs.conda.io/en/latest/miniconda.html
-- Create Conda env:
-
-``` sh
-conda create -n cosyvoice -y python=3.10
-conda activate cosyvoice
-# pynini is required by WeTextProcessing, use conda to install it as it can be executed on all platform.
-conda install -y -c conda-forge pynini==2.1.5
-pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host=mirrors.aliyun.com
-
-# If you encounter sox compatibility issues
-# ubuntu
-sudo apt-get install sox libsox-dev
-# centos
-sudo yum install sox sox-devel
-```
-
-``` sh
-# use venv
-
-python3.9 -m venv .venv
-
-source .venv/bin/activate
-
-pip install -r requirements.txt
-# If you encounter sox compatibility issues
-# ubuntu
-sudo apt-get install sox libsox-dev
-# centos
-sudo yum install sox sox-devel
-sudo yum install python3-devel
-```
-
-**Model download**
-
-We strongly recommend that you download our pretrained `CosyVoice2-0.5B` `CosyVoice-300M` `CosyVoice-300M-SFT` `CosyVoice-300M-Instruct` model and `CosyVoice-ttsfrd` resource.
-
-``` python
-# SDK模型下载
-from modelscope import snapshot_download
-snapshot_download('iic/CosyVoice2-0.5B', local_dir='pretrained_models/CosyVoice2-0.5B')
-snapshot_download('iic/CosyVoice-300M', local_dir='pretrained_models/CosyVoice-300M')
-snapshot_download('iic/CosyVoice-300M-SFT', local_dir='pretrained_models/CosyVoice-300M-SFT')
-snapshot_download('iic/CosyVoice-300M-Instruct', local_dir='pretrained_models/CosyVoice-300M-Instruct')
-snapshot_download('iic/CosyVoice-ttsfrd', local_dir='pretrained_models/CosyVoice-ttsfrd')
-```
-
-``` sh
-# git模型下载，请确保已安装git lfs
-mkdir -p pretrained_models
-git clone https://www.modelscope.cn/iic/CosyVoice2-0.5B.git pretrained_models/CosyVoice2-0.5B
-git clone https://www.modelscope.cn/iic/CosyVoice-300M.git pretrained_models/CosyVoice-300M
-git clone https://www.modelscope.cn/iic/CosyVoice-300M-SFT.git pretrained_models/CosyVoice-300M-SFT
-git clone https://www.modelscope.cn/iic/CosyVoice-300M-Instruct.git pretrained_models/CosyVoice-300M-Instruct
-git clone https://www.modelscope.cn/iic/CosyVoice-ttsfrd.git pretrained_models/CosyVoice-ttsfrd
-```
-
-```sh
-mkdir pretrained_models
-python download_models.py
-```
-
-Optionally, you can unzip `ttsfrd` resouce and install `ttsfrd` package for better text normalization performance.
-
-Notice that this step is not necessary. If you do not install `ttsfrd` package, we will use WeTextProcessing by default.
-
-``` sh
-cd pretrained_models/CosyVoice-ttsfrd/
-unzip resource.zip -d .
-pip install ttsfrd_dependency-0.1-py3-none-any.whl
-pip install ttsfrd-0.4.2-cp310-cp310-linux_x86_64.whl
-```
-
-**Basic Usage**
-
-We strongly recommend using `CosyVoice2-0.5B` for better performance.
-Follow code below for detailed usage of each model.
-
-``` python
-import sys
-sys.path.append('third_party/Matcha-TTS')
-from cosyvoice.cli.cosyvoice import CosyVoice, CosyVoice2
-from cosyvoice.utils.file_utils import load_wav
-import torchaudio
-```
-
-**CosyVoice2 Usage**
-```python
-cosyvoice = CosyVoice2('pretrained_models/CosyVoice2-0.5B', load_jit=False, load_trt=False, fp16=False, use_flow_cache=False)
-
-# NOTE if you want to reproduce the results on https://funaudiollm.github.io/cosyvoice2, please add text_frontend=False during inference
-# zero_shot usage
-prompt_speech_16k = load_wav('./asset/zero_shot_prompt.wav', 16000)
-for i, j in enumerate(cosyvoice.inference_zero_shot('收到好友从远方寄来的生日礼物，那份意外的惊喜与深深的祝福让我心中充满了甜蜜的快乐，笑容如花儿般绽放。', '希望你以后能够做的比我还好呦。', prompt_speech_16k, stream=False)):
-    torchaudio.save('zero_shot_{}.wav'.format(i), j['tts_speech'], cosyvoice.sample_rate)
-
-# save zero_shot spk for future usage
-assert cosyvoice.add_zero_shot_spk('希望你以后能够做的比我还好呦。', prompt_speech_16k, 'my_zero_shot_spk') is True
-for i, j in enumerate(cosyvoice.inference_zero_shot('收到好友从远方寄来的生日礼物，那份意外的惊喜与深深的祝福让我心中充满了甜蜜的快乐，笑容如花儿般绽放。', '', '', zero_shot_spk_id='my_zero_shot_spk', stream=False)):
-    torchaudio.save('zero_shot_{}.wav'.format(i), j['tts_speech'], cosyvoice.sample_rate)
-cosyvoice.save_spkinfo()
-
-# fine grained control, for supported control, check cosyvoice/tokenizer/tokenizer.py#L248
-for i, j in enumerate(cosyvoice.inference_cross_lingual('在他讲述那个荒诞故事的过程中，他突然[laughter]停下来，因为他自己也被逗笑了[laughter]。', prompt_speech_16k, stream=False)):
-    torchaudio.save('fine_grained_control_{}.wav'.format(i), j['tts_speech'], cosyvoice.sample_rate)
-
-# instruct usage
-for i, j in enumerate(cosyvoice.inference_instruct2('收到好友从远方寄来的生日礼物，那份意外的惊喜与深深的祝福让我心中充满了甜蜜的快乐，笑容如花儿般绽放。', '用四川话说这句话', prompt_speech_16k, stream=False)):
-    torchaudio.save('instruct_{}.wav'.format(i), j['tts_speech'], cosyvoice.sample_rate)
-
-# bistream usage, you can use generator as input, this is useful when using text llm model as input
-# NOTE you should still have some basic sentence split logic because llm can not handle arbitrary sentence length
-def text_generator():
-    yield '收到好友从远方寄来的生日礼物，'
-    yield '那份意外的惊喜与深深的祝福'
-    yield '让我心中充满了甜蜜的快乐，'
-    yield '笑容如花儿般绽放。'
-for i, j in enumerate(cosyvoice.inference_zero_shot(text_generator(), '希望你以后能够做的比我还好呦。', prompt_speech_16k, stream=False)):
-    torchaudio.save('zero_shot_{}.wav'.format(i), j['tts_speech'], cosyvoice.sample_rate)
-```
-
-**CosyVoice Usage**
-```python
-cosyvoice = CosyVoice('pretrained_models/CosyVoice-300M-SFT', load_jit=False, load_trt=False, fp16=False)
-# sft usage
-print(cosyvoice.list_available_spks())
-# change stream=True for chunk stream inference
-for i, j in enumerate(cosyvoice.inference_sft('你好，我是通义生成式语音大模型，请问有什么可以帮您的吗？', '中文女', stream=False)):
-    torchaudio.save('sft_{}.wav'.format(i), j['tts_speech'], cosyvoice.sample_rate)
-
-cosyvoice = CosyVoice('pretrained_models/CosyVoice-300M')
-# zero_shot usage, <|zh|><|en|><|jp|><|yue|><|ko|> for Chinese/English/Japanese/Cantonese/Korean
-prompt_speech_16k = load_wav('./asset/zero_shot_prompt.wav', 16000)
-for i, j in enumerate(cosyvoice.inference_zero_shot('收到好友从远方寄来的生日礼物，那份意外的惊喜与深深的祝福让我心中充满了甜蜜的快乐，笑容如花儿般绽放。', '希望你以后能够做的比我还好呦。', prompt_speech_16k, stream=False)):
-    torchaudio.save('zero_shot_{}.wav'.format(i), j['tts_speech'], cosyvoice.sample_rate)
-# cross_lingual usage
-prompt_speech_16k = load_wav('./asset/cross_lingual_prompt.wav', 16000)
-for i, j in enumerate(cosyvoice.inference_cross_lingual('<|en|>And then later on, fully acquiring that company. So keeping management in line, interest in line with the asset that\'s coming into the family is a reason why sometimes we don\'t buy the whole thing.', prompt_speech_16k, stream=False)):
-    torchaudio.save('cross_lingual_{}.wav'.format(i), j['tts_speech'], cosyvoice.sample_rate)
-# vc usage
-prompt_speech_16k = load_wav('./asset/zero_shot_prompt.wav', 16000)
-source_speech_16k = load_wav('./asset/cross_lingual_prompt.wav', 16000)
-for i, j in enumerate(cosyvoice.inference_vc(source_speech_16k, prompt_speech_16k, stream=False)):
-    torchaudio.save('vc_{}.wav'.format(i), j['tts_speech'], cosyvoice.sample_rate)
-
-cosyvoice = CosyVoice('pretrained_models/CosyVoice-300M-Instruct')
-# instruct usage, support <laughter></laughter><strong></strong>[laughter][breath]
-for i, j in enumerate(cosyvoice.inference_instruct('在面对挑战时，他展现了非凡的<strong>勇气</strong>与<strong>智慧</strong>。', '中文男', 'Theo \'Crimson\', is a fiery, passionate rebel leader. Fights with fervor for justice, but struggles with impulsiveness.', stream=False)):
-    torchaudio.save('instruct_{}.wav'.format(i), j['tts_speech'], cosyvoice.sample_rate)
-```
-
-**Start web demo**
-
-You can use our web demo page to get familiar with CosyVoice quickly.
-
-Please see the demo website for details.
-
-``` python
-# change iic/CosyVoice-300M-SFT for sft inference, or iic/CosyVoice-300M-Instruct for instruct inference
-python3 webui.py --port 50000 --model_dir pretrained_models/CosyVoice-300M
-```
-
-**Advanced Usage**
-
-For advanced user, we have provided train and inference scripts in `examples/libritts/cosyvoice/run.sh`.
-
-**Build for deployment**
-
-Optionally, if you want service deployment,
-you can run following steps.
-
-``` sh
-cd runtime/python
-docker build -t cosyvoice:v1.0 .
-# change iic/CosyVoice-300M to iic/CosyVoice-300M-Instruct if you want to use instruct inference
-# for grpc usage
-docker run -d --runtime=nvidia -p 50000:50000 cosyvoice:v1.0 /bin/bash -c "cd /opt/CosyVoice/CosyVoice/runtime/python/grpc && python3 server.py --port 50000 --max_conc 4 --model_dir iic/CosyVoice-300M && sleep infinity"
-cd grpc && python3 client.py --port 50000 --mode <sft|zero_shot|cross_lingual|instruct>
-# for fastapi usage
-docker run -d --runtime=nvidia -p 50000:50000 cosyvoice:v1.0 /bin/bash -c "cd /opt/CosyVoice/CosyVoice/runtime/python/fastapi && python3 server.py --port 50000 --model_dir iic/CosyVoice-300M && sleep infinity"
-cd fastapi && python3 client.py --port 50000 --mode <sft|zero_shot|cross_lingual|instruct>
-```
-
-## Discussion & Communication
-
-You can directly discuss on [Github Issues](https://github.com/FunAudioLLM/CosyVoice/issues).
-
-You can also scan the QR code to join our official Dingding chat group.
-
-<img src="./asset/dingding.png" width="250px">
-
-## Acknowledge
-
-1. We borrowed a lot of code from [FunASR](https://github.com/modelscope/FunASR).
-2. We borrowed a lot of code from [FunCodec](https://github.com/modelscope/FunCodec).
-3. We borrowed a lot of code from [Matcha-TTS](https://github.com/shivammehta25/Matcha-TTS).
-4. We borrowed a lot of code from [AcademiCodec](https://github.com/yangdongchao/AcademiCodec).
-5. We borrowed a lot of code from [WeNet](https://github.com/wenet-e2e/wenet).
-
-## Disclaimer
-The content provided above is for academic purposes only and is intended to demonstrate technical capabilities. Some examples are sourced from the internet. If any content infringes on your rights, please contact us to request its removal.
-
-## Examples
-python cosyvoice_manager.py --model_path pretrained_models/CosyVoice2-0.5B --action fine_control --text "没有物质的爱情，就像一盘散沙[breath]，都不用风吹，走两步就散了[laughter], 还不如一起吃溜溜梅呗." --prompt_audio asset/taimeizhubo.wav --output_dir output
-
-
-python cosyvoice_manager.py --model_path pretrained_models/CosyVoice2-0.5B --action instruct --text "没有物质的爱情，就像一盘散沙，都不用风吹，走两步就散了, 还不如一起吃溜溜梅呗." --instruction "请用台湾腔说这句话" --prompt_audio asset/yangmi.wav --output_dir output
+使用本项目即表示您已阅读并同意以上声明
