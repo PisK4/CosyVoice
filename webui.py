@@ -323,7 +323,7 @@ def update_audio_visibility(stream_enabled):
 def main():
     with gr.Blocks() as demo:
         # 页面标题和说明
-        gr.Markdown("### 代码库 [CosyVoice2-Ex](https://github.com/journey-ad/CosyVoice2-Ex) 原始项目 [CosyVoice](https://github.com/FunAudioLLM/CosyVoice) \
+        gr.Markdown("[CosyVoice](https://github.com/FunAudioLLM/CosyVoice) \
                     预训练模型 [CosyVoice2-0.5B](https://www.modelscope.cn/models/iic/CosyVoice2-0.5B) \
                     [CosyVoice-300M](https://www.modelscope.cn/models/iic/CosyVoice-300M) \
                     [CosyVoice-300M-Instruct](https://www.modelscope.cn/models/iic/CosyVoice-300M-Instruct) \

@@ -1,27 +1,16 @@
-import time
 import io, os, sys
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append('{}/third_party/AcademiCodec'.format(ROOT_DIR))
 sys.path.append('{}/third_party/Matcha-TTS'.format(ROOT_DIR))
-ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-import requests
-from pydub import AudioSegment
-
-import numpy as np
-from flask import Flask, request, Response, send_from_directory, make_response
 import torch
 import torchaudio
-
-from cosyvoice.cli.cosyvoice import CosyVoice, CosyVoice2
-from cosyvoice.utils.file_utils import load_wav
-import torchaudio
-import ffmpeg
-
+from flask import Flask, request, Response, make_response
 from flask_cors import CORS
-import shutil
 import json
 import logging
+
+from cosyvoice.cli.cosyvoice import CosyVoice2
 
 # 配置日志
 logging.basicConfig(
