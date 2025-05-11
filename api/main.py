@@ -24,7 +24,7 @@ sys.path.append(ROOT_DIR)
 
 # 配置导入
 try:
-    from api.config import HOST, PORT, CORS_ORIGINS, API_KEYS, ENABLE_API_AUTH, NO_AUTH_PATHS
+    from api.config import HOST, PORT, CORS_ORIGINS, API_KEYS, ENABLE_API_AUTH, NO_AUTH_PATHS, PRELOAD_MODEL
     from api.service import TTSService, get_available_voices, process_audio, load_voice_data
 except ImportError as e:
     logger.error(f"导入基础模块失败: {e}")
@@ -52,6 +52,64 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# 初始化 TTS 服务
+tts_service = None
+
+def get_tts_service():
+    global tts_service
+    if tts_service is None:
+        try:
+            logger.info("初始化TTS服务...")
+            tts_service = TTSService()
+            logger.info("TTS服务初始化完成")
+        except Exception as e:
+            logger.error(f"初始化TTS服务失败: {e}")
+            raise HTTPException(status_code=500, detail=f"初始化TTS服务失败: {str(e)}")
+    return tts_service
+
+# 应用启动事件处理
+@app.on_event("startup")
+async def startup_event():
+    """应用启动时执行预加载操作"""
+    global tts_service
+    
+    # 输出环境变量检查
+    preload_env = os.environ.get("PRELOAD_MODEL", "未设置")
+    logger.info(f"PRELOAD_MODEL环境变量值: '{preload_env}'")
+    logger.info(f"配置解析后的PRELOAD_MODEL值: {PRELOAD_MODEL}")
+    
+    # 仅在PRELOAD_MODEL为True时预加载模型
+    if PRELOAD_MODEL:
+        logger.info("启动时预加载模型模式已启用...")
+        try:
+            # 设置FFmpeg环境变量
+            logger.info("设置FFmpeg环境变量")
+            os.environ['TORIO_FFMPEG_BINARY'] = 'ffmpeg'  # 指定使用系统的ffmpeg
+            os.environ['TORIO_USE_FFMPEG'] = '0'  # 禁用torio内置的FFmpeg加载
+            os.environ['TORIO_NO_FFMPEG'] = '1'  # 防止重复尝试加载失败的库
+            
+            # 在macOS上设置动态库搜索路径
+            if sys.platform == 'darwin':
+                if 'DYLD_LIBRARY_PATH' not in os.environ:
+                    if os.path.exists('/opt/homebrew/lib'):
+                        os.environ['DYLD_LIBRARY_PATH'] = '/opt/homebrew/lib'
+                    else:
+                        os.environ['DYLD_LIBRARY_PATH'] = '/usr/local/lib'
+                        
+            # 预加载TTS服务
+            logger.info("开始预加载TTS服务...")
+            tts_service = get_tts_service()
+            
+            # 预热 - 获取可用音色列表
+            logger.info("获取可用音色列表...")
+            voices = get_available_voices()
+            logger.info(f"模型预加载成功，可用音色数: {len(voices)}")
+        except Exception as e:
+            logger.error(f"模型预加载失败: {e}", exc_info=True)
+            logger.warning("将在第一次请求时尝试加载模型")
+    else:
+        logger.info("模型预加载已禁用，将在第一次请求时加载")
+
 # 数据模型
 class TTSRequest(BaseModel):
     text: str = Field(..., description="需要转换为语音的文本")
@@ -77,21 +135,6 @@ class TTSRequest(BaseModel):
         # 这里不能直接调用get_available_voices()，因为验证器是静态方法
         # 但可以在路由函数中进行额外验证
         return v
-
-# 初始化 TTS 服务
-tts_service = None
-
-def get_tts_service():
-    global tts_service
-    if tts_service is None:
-        try:
-            logger.info("初始化TTS服务...")
-            tts_service = TTSService()
-            logger.info("TTS服务初始化完成")
-        except Exception as e:
-            logger.error(f"初始化TTS服务失败: {e}")
-            raise HTTPException(status_code=500, detail=f"初始化TTS服务失败: {str(e)}")
-    return tts_service
 
 # API 密钥验证函数
 async def verify_api_key(request: Request, api_key: str = Depends(API_KEY_HEADER)):

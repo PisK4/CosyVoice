@@ -1,6 +1,10 @@
 # Author: Richard Sun
 
 import os
+import logging
+
+# 设置日志
+logger = logging.getLogger(__name__)
 
 # 基础路径配置
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -17,12 +21,20 @@ os.makedirs(VOICES_DIR, exist_ok=True)
 # 服务器配置
 HOST = "0.0.0.0"  # 绑定到所有网络接口
 PORT = int(os.environ.get("COSYVOICE_API_PORT", 9880))  # 使用环境变量或默认端口 9880
-PRELOAD_MODEL = os.environ.get("PRELOAD_MODEL", "True").lower() == "true"  # 是否在启动时预加载模型
+
+# 模型预加载配置 - 支持多种布尔值表示
+preload_env = os.environ.get("PRELOAD_MODEL", "True")
+# 兼容多种布尔值表示
+if preload_env.lower() in ("true", "1", "t", "yes", "y"):
+    PRELOAD_MODEL = True
+else:
+    PRELOAD_MODEL = False
+
+logger.info(f"环境变量PRELOAD_MODEL={preload_env}, 解析为: {PRELOAD_MODEL}")
 
 # 音频处理参数
 MAX_VAL = 0.8
 PROMPT_SR = 16000
-DEFAULT_VOICE = "李达康"  # 默认声音
 
 # 模型路径
 MODEL_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "pretrained_models/CosyVoice2-0.5B")
@@ -35,8 +47,7 @@ WIN_LENGTH = 440
 
 # API密钥配置
 API_KEYS = [
-    "cosyvoice-api-demo",  # 演示用 API 密钥
-    # 添加其他 API 密钥
+    "cosyvoice-api-demo",  # dev 测试用 API 密钥
 ]
 
 # 不需要API密钥验证的路径
@@ -48,10 +59,10 @@ NO_AUTH_PATHS = [
 ]
 
 # 是否启用API认证（默认启用）
-ENABLE_API_AUTH = True  # 强制启用API认证以便测试能够通过
+ENABLE_API_AUTH = True
 
 # 添加允许所有源的CORS配置
-CORS_ORIGINS = ["*"]  # 允许所有源，生产环境应该设置为特定域名
+CORS_ORIGINS = ["*"]  # 测试环境允许所有源，生产环境应该设置为特定域名
 
 # 目录路径
 AUDIO_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "audios")

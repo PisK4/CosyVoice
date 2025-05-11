@@ -57,3 +57,4 @@ output.pt
 .build_temp
 !build_portable.ps1
 output
+test_output
