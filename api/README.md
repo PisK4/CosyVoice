@@ -18,42 +18,39 @@ api/
 ├── config.py           # 配置文件
 ├── main.py             # FastAPI 主应用
 ├── service.py          # TTS 服务实现
-├── tn_patch.py         # TN 模块补丁（解决依赖问题）
+├── setup_deps.py       # 依赖管理模块
 ├── README.md           # 本文档
-└── TROUBLESHOOTING.md  # 故障排除指南
+├── TROUBLESHOOTING.md  # 故障排除指南
+└── requirements.txt    # API依赖列表
 ```
 
 ## 快速开始
 
 ### 启动服务
 
-使用提供的脚本启动服务：
+使用根目录提供的脚本启动服务：
 
 ```bash
-# 默认端口 9881
-./start_fastapi_service.sh
-
-# 使用自定义端口
-./start_fastapi_service_custom_port.sh 9882
+# 默认端口 9880
+python run-api.py
 ```
 
 服务启动后，可以通过以下地址访问：
 
-- API 端点: http://localhost:9881/
-- API 文档: http://localhost:9881/docs
-- API 说明: http://localhost:9881/redoc
+- API 端点: http://localhost:9880/tts
+- API 文档: http://localhost:9880/docs
+- API 说明: http://localhost:9880/redoc
 
 ### 测试 API
 
-使用提供的测试脚本：
+可以使用简单的curl命令或浏览器直接访问API：
 
 ```bash
-# 基本测试
-./test_fastapi.sh
+# 获取可用音色
+curl http://localhost:9880/speakers
 
-# 更详细的 Python 测试
-python test_fastapi_tts.py --list-speakers
-python test_fastapi_tts.py --text "你好，世界" --speaker "zh_F_1"
+# 生成语音 (GET)
+curl "http://localhost:9880/tts?text=你好，世界&speaker=zh_F_1" --output test.wav
 ```
 
 ## API 接口说明
@@ -122,7 +119,7 @@ GET /health
 ```json
 {
   "status": "healthy",
-  "service": "CosyVoice2-Ex API"
+  "service": "CosyVoice2 API"
 }
 ```
 
@@ -130,8 +127,9 @@ GET /health
 
 API 配置可以通过环境变量控制：
 
-- `COSYVOICE_API_PORT`：API 端口（默认 9881）
+- `COSYVOICE_API_PORT`：API 端口（默认 9880）
 - `ENABLE_API_AUTH`：是否启用 API 认证（默认 True）
+- `PRELOAD_MODEL`：是否在启动时预加载模型（默认 True）
 
 配置文件 `api/config.py` 可以修改更多高级选项。
 

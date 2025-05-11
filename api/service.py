@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CosyVoice2-Ex API 服务模块
+CosyVoice2 API 服务模块
 包含TTS服务的核心功能实现
 """
 
@@ -16,23 +16,21 @@ logging.basicConfig(level=logging.INFO,
                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# 解决FFmpeg依赖加载问题
-logger.info("设置FFmpeg环境变量")
-os.environ['TORIO_FFMPEG_BINARY'] = 'ffmpeg'  # 使用系统安装的ffmpeg
-os.environ['TORIO_USE_FFMPEG'] = '0'  # 禁用torio内置的FFmpeg加载机制
-os.environ['TORIO_NO_FFMPEG'] = '1'  # 防止重复尝试加载失败的库
+# os.environ['TORIO_FFMPEG_BINARY'] = 'ffmpeg'  # 使用系统安装的ffmpeg
+# os.environ['TORIO_USE_FFMPEG'] = '0'  # 禁用torio内置的FFmpeg加载机制
+# os.environ['TORIO_NO_FFMPEG'] = '1'  # 防止重复尝试加载失败的库
 
-# 在macOS上配置动态库路径
-if sys.platform == 'darwin':
-    if 'DYLD_LIBRARY_PATH' not in os.environ:
-        if os.path.exists('/opt/homebrew/lib'):  # Apple Silicon
-            os.environ['DYLD_LIBRARY_PATH'] = '/opt/homebrew/lib'
-            logger.info("设置Apple Silicon库路径: /opt/homebrew/lib")
-        else:  # Intel Mac
-            os.environ['DYLD_LIBRARY_PATH'] = '/usr/local/lib'
-            logger.info("设置Intel Mac库路径: /usr/local/lib")
-    else:
-        logger.info(f"使用已设置的库路径: {os.environ['DYLD_LIBRARY_PATH']}")
+# # 在macOS上配置动态库路径
+# if sys.platform == 'darwin':
+#     if 'DYLD_LIBRARY_PATH' not in os.environ:
+#         if os.path.exists('/opt/homebrew/lib'):  # Apple Silicon
+#             os.environ['DYLD_LIBRARY_PATH'] = '/opt/homebrew/lib'
+#             logger.info("设置Apple Silicon库路径: /opt/homebrew/lib")
+#         else:  # Intel Mac
+#             os.environ['DYLD_LIBRARY_PATH'] = '/usr/local/lib'
+#             logger.info("设置Intel Mac库路径: /usr/local/lib")
+#     else:
+#         logger.info(f"使用已设置的库路径: {os.environ['DYLD_LIBRARY_PATH']}")
 
 import torch
 import torchaudio

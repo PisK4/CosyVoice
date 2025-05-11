@@ -1,5 +1,3 @@
-# Author: Richard Sun
-
 import os
 import logging
 
@@ -22,13 +20,12 @@ os.makedirs(VOICES_DIR, exist_ok=True)
 HOST = "0.0.0.0"  # 绑定到所有网络接口
 PORT = int(os.environ.get("COSYVOICE_API_PORT", 9880))  # 使用环境变量或默认端口 9880
 
-# 模型预加载配置 - 支持多种布尔值表示
+# 模型预加载配置
 preload_env = os.environ.get("PRELOAD_MODEL", "True")
-# 兼容多种布尔值表示
 if preload_env.lower() in ("true", "1", "t", "yes", "y"):
     PRELOAD_MODEL = True
 else:
-    PRELOAD_MODEL = False
+    PRELOAD_MODEL = True
 
 logger.info(f"环境变量PRELOAD_MODEL={preload_env}, 解析为: {PRELOAD_MODEL}")
 
@@ -38,12 +35,12 @@ PROMPT_SR = 16000
 
 # 模型路径
 MODEL_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "pretrained_models/CosyVoice2-0.5B")
-LOAD_JIT = True
+# LOAD_JIT = True
 
-# 后处理参数
-TOP_DB = 60
-HOP_LENGTH = 220
-WIN_LENGTH = 440
+# # 后处理参数
+# TOP_DB = 60
+# HOP_LENGTH = 220
+# WIN_LENGTH = 440
 
 # API密钥配置
 API_KEYS = [

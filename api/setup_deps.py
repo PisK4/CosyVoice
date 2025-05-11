@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CosyVoice2-Ex 依赖安装脚本
+CosyVoice2 依赖安装脚本
 检查并安装所有必要的依赖包
 """
 
@@ -37,7 +37,7 @@ def run_command(command):
 
 def check_and_install_dependencies():
     """检查和安装依赖"""
-    print_colored("=== CosyVoice2-Ex 依赖检查 ===", Colors.HEADER)
+    print_colored("=== CosyVoice2 依赖检查 ===", Colors.HEADER)
     
     # 检查当前环境
     python_version = platform.python_version()

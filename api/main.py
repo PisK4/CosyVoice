@@ -35,8 +35,8 @@ API_KEY_HEADER = APIKeyHeader(name="X-API-Key", auto_error=False)
 
 # 创建 FastAPI 应用
 app = FastAPI(
-    title="CosyVoice2-Ex API",
-    description="CosyVoice2-Ex 文本转语音 API - 提供高质量的语音合成服务",
+    title="CosyVoice2 API",
+    description="CosyVoice2 文本转语音 API - 提供高质量的语音合成服务",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
@@ -393,11 +393,11 @@ async def health_check():
     ```json
     {
         "status": "healthy",
-        "service": "CosyVoice2-Ex API"
+        "service": "CosyVoice2 API"
     }
     ```
     """
-    return {"status": "healthy", "service": "CosyVoice2-Ex API"}
+    return {"status": "healthy", "service": "CosyVoice2 API"}
 
 
 # 启动服务器
